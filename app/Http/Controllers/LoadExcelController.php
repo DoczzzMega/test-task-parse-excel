@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ImportRowsFromExcelJob;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use function Termwind\parse;
 
 class LoadExcelController extends Controller
 {
     public function index()
     {
-
         return view('load-excel');
     }
 
@@ -34,6 +36,10 @@ class LoadExcelController extends Controller
         $filename = time() . '_' . $file->getClientOriginalName();
 
         $path = $file->storeAs('excels', $filename, 'local');
+
+        $fullPath = Storage::disk('local')->path($path);
+
+        dispatch(new ImportRowsFromExcelJob($fullPath));
 
 //        session()->flash('success', 'Файл успешно загружен!');
 
