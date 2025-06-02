@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\CountRowsEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -44,5 +45,6 @@ class ProcessRowsFromExcelChunkJob implements ShouldQueue
         if (!empty($toInsert)) {
             DB::table('rows')->insert($toInsert);
         }
+        event(new CountRowsEvent(cache('count_rows')));
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\ImportRowsFromExcelJob;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use function Termwind\parse;
 
@@ -31,7 +32,6 @@ class LoadExcelController extends Controller
             'excel_file.max'      => 'Максимальный размер файла — 5 МБ.',
         ]);
 
-
         $file = $request->file('excel_file');
         $filename = time() . '_' . $file->getClientOriginalName();
 
@@ -41,9 +41,19 @@ class LoadExcelController extends Controller
 
         dispatch(new ImportRowsFromExcelJob($fullPath));
 
-//        session()->flash('success', 'Файл успешно загружен!');
+        return back()->with('success', 'Файл успешно загружен! Ожидайте');
 
-        return back()->with('success', 'Файл успешно загружен!');
+    }
 
+    public function getRows()
+    {
+        $rows = DB::table('rows')
+            ->select('id', 'name', 'date')
+            ->latest('date')
+            ->get();
+
+        $result = $rows->groupBy('date')->take(10)->toArray();
+
+        return response()->json($result);
     }
 }

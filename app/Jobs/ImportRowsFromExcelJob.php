@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\CountRowsEvent;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -35,6 +36,8 @@ class ImportRowsFromExcelJob implements ShouldQueue
 
         $batch = [];
 
+        cache()->forget('count_rows');
+
         foreach ($reader->getSheetIterator() as $sheet) {
             foreach ($sheet->getRowIterator() as $rowNumber => $row) {
                 $cells = $row->getCells();
@@ -44,6 +47,8 @@ class ImportRowsFromExcelJob implements ShouldQueue
                 }
 
                 $cells = $row->toArray();
+
+                cache()->increment('count_rows');
 
                 $data = [
                     'id'   => $cells[0] ?? null,

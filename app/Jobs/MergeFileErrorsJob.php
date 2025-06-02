@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\ImportRowsFromExcelSucceededEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Storage;
@@ -27,7 +28,7 @@ class MergeFileErrorsJob implements ShouldQueue
     public function handle(): void
     {
         Storage::put('result.txt', '');
-        info('file start merged');
+        info('report files start merged');
         if (! Storage::disk('local')->exists($this->filenames[0])
             && ! Storage::disk('local')->exists($this->filenames[1])) {
 
@@ -44,7 +45,9 @@ class MergeFileErrorsJob implements ShouldQueue
 
         Storage::put('result.txt', $mergedContent);
 
-        info('file end merged  ');
+        event(new ImportRowsFromExcelSucceededEvent('Импорт в базу данных завершен.'));
+
+        info('end merge. result.txt has been generated ');
 
 //        $this->deleteOldFiles();
     }
