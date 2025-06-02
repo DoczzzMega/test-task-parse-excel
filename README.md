@@ -9,6 +9,8 @@
 <p> Ссылка на тестовое задание:</p>
 
 - [Backend-developer тестовое задание](https://docs.google.com/document/d/1rz-qUjbMjuIinNHUzKe8yfHKSs6UjqP4_Vn2uvzhmlk/edit?tab=t.0).
+- [Файл для импорта в xlsx формате можно скачать здесь](https://docs.google.com/spreadsheets/d/1ocBRhoGkzeKRHgepf07V0UCUAon2NFPl6UwMzeoXK0E/edit?usp=sharing).
+
 
 ## Установка 
 >  (В проекте есть пакет sail)
