@@ -8,9 +8,8 @@
 Проект представляет собой парсер  excel файлов (xlsx) для импорта данных таблицы в базу данных. Использованы laravel очереди (horizon для запуска очередей), вебсокеты с сервером reverb, для динамического отображения обработанных строк файла и уведомления об успехе операции. По итогу генерируется файл result.txt с отчетом об ошибках валидации строк excel файла. 
 <p> Ссылка на тестовое задание:</p>
 
-- <a href="https://docs.google.com/document/d/1rz-qUjbMjuIinNHUzKe8yfHKSs6UjqP4_Vn2uvzhmlk/edit?tab=t.0" target="_blank" rel="noopener noreferrer">Backend-developer тестовое задание</a>
-- <a href="https://docs.google.com/spreadsheets/d/1ocBRhoGkzeKRHgepf07V0UCUAon2NFPl6UwMzeoXK0E/edit?usp=sharing" target="_blank" rel="noopener noreferrer">Файл для импорта в xlsx формате можно скачать здесь</a>
-
+- [Backend-developer тестовое задание](https://docs.google.com/document/d/1rz-qUjbMjuIinNHUzKe8yfHKSs6UjqP4_Vn2uvzhmlk/edit?tab=t.0).
+- [Файл для импорта в xlsx формате можно скачать здесь](https://docs.google.com/spreadsheets/d/1ocBRhoGkzeKRHgepf07V0UCUAon2NFPl6UwMzeoXK0E/edit?usp=sharing).
 
 
 ## Установка 
