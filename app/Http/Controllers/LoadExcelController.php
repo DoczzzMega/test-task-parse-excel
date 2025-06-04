@@ -23,7 +23,7 @@ class LoadExcelController extends Controller
                 'required',
                 'file',
                 'mimes:xlsx,xls',
-                'max:5120',
+                'max:204800',
             ],
         ], [
             'excel_file.required' => 'Файл обязателен к загрузке.',

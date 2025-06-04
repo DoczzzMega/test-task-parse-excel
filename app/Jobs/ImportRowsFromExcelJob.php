@@ -15,7 +15,9 @@ class ImportRowsFromExcelJob implements ShouldQueue
 {
     use Queueable;
 
-    public int $tries = 5;
+    public int $tries = 1;
+
+    public int $timeout = 600;
 
     protected int $chunkSize = 1000;
     public function __construct(public string $path)
@@ -24,71 +26,78 @@ class ImportRowsFromExcelJob implements ShouldQueue
 
     public function handle(): void
     {
-        Storage::put('import_errors.txt', '');
+        try {
+            Storage::put('import_errors.txt', '');
 
-        $reader = new Reader();
+            $reader = new Reader();
 
-        if (! file_exists($this->path)) {
-            return;
-        }
+            if (! file_exists($this->path)) {
+                return;
+            }
 
-        $reader->open($this->path);
+            $reader->open($this->path);
 
-        $batch = [];
+            $batch = [];
 
-        cache()->forget('count_rows');
+            cache()->forget('count_rows');
 
-        foreach ($reader->getSheetIterator() as $sheet) {
-            foreach ($sheet->getRowIterator() as $rowNumber => $row) {
-                $cells = $row->getCells();
+            foreach ($reader->getSheetIterator() as $sheet) {
+                foreach ($sheet->getRowIterator() as $rowNumber => $row) {
+                    $cells = $row->getCells();
 
-                if ($rowNumber === 1) {
-                    continue;
-                }
+                    if ($rowNumber === 1) {
+                        continue;
+                    }
 
-                $cells = $row->toArray();
+                    $cells = $row->toArray();
 
-                cache()->increment('count_rows');
+                    cache()->increment('count_rows');
 
-                $data = [
-                    'id'   => $cells[0] ?? null,
-                    'name' => $cells[1] ?? null,
-                    'date' => $cells[2] ?? null,
-                ];
+                    $data = [
+                        'id'   => $cells[0] ?? null,
+                        'name' => $cells[1] ?? null,
+                        'date' => $cells[2] ?? null,
+                    ];
 
-                $validator = $this->validateData($data);
+                    $validator = $this->validateData($data);
 
-                if ($validator->fails()) {
-                    $messages = $validator->errors()->all();
+                    if ($validator->fails()) {
+                        $messages = $validator->errors()->all();
 
-                    $this->writeErrors($rowNumber, $messages);
+                        $this->writeErrors($rowNumber, $messages);
 
-                    continue;
-                }
+                        continue;
+                    }
 
-                $batch[] = [
-                    'row_index'  => $rowNumber,
-                    'id'         => $data['id'],
-                    'name'       => $data['name'],
-                    'date'       => Carbon::createFromFormat('d.m.Y', $data['date']),
-                ];
+                    $batch[] = [
+                        'row_index'  => $rowNumber,
+                        'id'         => $data['id'],
+                        'name'       => $data['name'],
+                        'date'       => Carbon::createFromFormat('d.m.Y', $data['date']),
+                    ];
 
-                if (count($batch) >= $this->chunkSize) {
-                    dispatch(new ProcessRowsFromExcelChunkJob($batch));
-                    $batch = [];
+                    if (count($batch) >= $this->chunkSize) {
+                        dispatch(new ProcessRowsFromExcelChunkJob($batch));
+                        $batch = [];
+                    }
                 }
             }
+
+            if (!empty($batch)) {
+                dispatch(new ProcessRowsFromExcelChunkJob($batch));
+            }
+
+            $reader->close();
+
+            dispatch(new MergeFileErrorsJob());
+
+            info('Конец парсинга');
+
+        } catch (\Throwable $e) {
+            report($e);
+            $this->fail($e);
         }
 
-        if (!empty($batch)) {
-            dispatch(new ProcessRowsFromExcelChunkJob($batch));
-        }
-
-        $reader->close();
-
-        dispatch(new MergeFileErrorsJob());
-
-        info('Конец парсинга');
     }
 
     public function validateData($data)
