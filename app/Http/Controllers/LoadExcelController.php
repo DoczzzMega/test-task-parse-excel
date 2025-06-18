@@ -12,6 +12,8 @@ class LoadExcelController extends Controller
 {
     public function index()
     {
+//        dd(ini_get('memory_limit'));
+
         return view('load-excel');
     }
 

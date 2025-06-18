@@ -24,7 +24,7 @@ class CreateLargeExcelCommand extends Command
         $targetPath = Storage::disk('local')->path('output_100mb.xlsx');
 
         $sourceSizeBytes = filesize($sourcePath);
-        $targetSizeBytes = 100 * 1024 * 1024 * 2;
+        $targetSizeBytes = 100 * 1024 * 512;
         $repeatFactor = (int)ceil($targetSizeBytes / $sourceSizeBytes);
 
         echo "Исходный файл: {$sourceSizeBytes} байт\n";

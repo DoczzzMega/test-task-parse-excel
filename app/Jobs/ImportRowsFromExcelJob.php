@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Events\CountRowsEvent;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -17,7 +16,9 @@ class ImportRowsFromExcelJob implements ShouldQueue
 
     public int $tries = 1;
 
-    public int $timeout = 600;
+    public int $timeout = 16000;
+
+    public $failOnTimeout = true;
 
     protected int $chunkSize = 1000;
     public function __construct(public string $path)
@@ -54,9 +55,9 @@ class ImportRowsFromExcelJob implements ShouldQueue
                     cache()->increment('count_rows');
 
                     $data = [
-                        'id'   => $cells[0] ?? null,
-                        'name' => $cells[1] ?? null,
-                        'date' => $cells[2] ?? null,
+                        'id'   => $cells[0],
+                        'name' => $cells[1],
+                        'date' => $cells[2],
                     ];
 
                     $validator = $this->validateData($data);
@@ -76,7 +77,7 @@ class ImportRowsFromExcelJob implements ShouldQueue
                         'date'       => Carbon::createFromFormat('d.m.Y', $data['date']),
                     ];
 
-                    if (count($batch) >= $this->chunkSize) {
+                    if (count($batch) === $this->chunkSize) {
                         dispatch(new ProcessRowsFromExcelChunkJob($batch));
                         $batch = [];
                     }

@@ -48,7 +48,7 @@
         @csrf
 
         <div class="mb-3">
-            <label for="excel_file" class="form-label">Выберите Excel-файл (.xls, .xlsx):</label>
+            <label for="excel_file" class="form-label">Выберите Excel-файл (.xlsx):</label>
             <input class="form-control" type="file" id="excel_file" name="excel_file" accept=".xls,.xlsx">
         </div>
 
